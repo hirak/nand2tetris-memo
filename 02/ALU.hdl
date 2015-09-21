@@ -27,8 +27,8 @@
 // if (out < 0) set ng = 1
 
 CHIP ALU {
-    IN  
-        x[16], y[16],  // 16-bit inputs        
+    IN
+        x[16], y[16],  // 16-bit inputs
         zx, // zero the x input?
         nx, // negate the x input?
         zy, // zero the y input?
@@ -36,11 +36,38 @@ CHIP ALU {
         f,  // compute out = x + y (if 1) or x & y (if 0)
         no; // negate the out output?
 
-    OUT 
+    OUT
         out[16], // 16-bit output
         zr, // 1 if (out == 0), 0 otherwise
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // if (zx == 1) set x = 0        // 16-bit constant
+        Mux16(a=x, b[0..15]=false, sel=zx, out=xx);
+    // if (nx == 1) set x = !x       // bitwise not
+        Not16(in=xx, out=notx);
+        Mux16(a=xx, b=notx, sel=nx, out=xxx);
+
+    // if (zy == 1) set y = 0        // 16-bit constant
+        Mux16(a=y, b[0..15]=false, sel=zy, out=yy);
+    // if (ny == 1) set y = !y       // bitwise not
+        Not16(in=yy, out=noty);
+        Mux16(a=yy, b=noty, sel=ny, out=yyy);
+
+    // if (f == 1)  set out = x + y  // integer 2's complement addition
+    // if (f == 0)  set out = x & y  // bitwise and
+        Add16(a=xxx, b=yyy, out=xplusy);
+        And16(a=xxx, b=yyy, out=xandy);
+        Mux16(a=xandy, b=xplusy, sel=f, out=fout);
+
+    // if (no == 1) set out = !out   // bitwise not
+    // if (out < 0) set ng = 1
+        Not16(in=fout, out=notfout);
+        Mux16(a=fout, b=notfout, sel=no, out=out, out[0..7]=aout, out[8..15]=bout, out[15]=ng);
+
+    // if (out == 0) set zr = 1
+        Or8Way(in=aout, out=zr1);
+        Or8Way(in=bout, out=zr2);
+        Or(a=zr1, b=zr2, out=any);
+        Not(in=any, out=zr);
 }
