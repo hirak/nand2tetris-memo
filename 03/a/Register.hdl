@@ -14,56 +14,20 @@ CHIP Register {
     OUT out[16];
 
     PARTS:
-    Mux16(
-        b=in,
-        a[0]=feedback0,
-        a[1]=feedback1,
-        a[2]=feedback2,
-        a[3]=feedback3,
-        a[4]=feedback4,
-        a[5]=feedback5,
-        a[6]=feedback6,
-        a[7]=feedback7,
-        a[8]=feedback8,
-        a[9]=feedback9,
-        a[10]=feedback10,
-        a[11]=feedback11,
-        a[12]=feedback12,
-        a[13]=feedback13,
-        a[14]=feedback14,
-        a[15]=feedback15,
-        sel=load,
-        out[0]=selected0,
-        out[1]=selected1,
-        out[2]=selected2,
-        out[3]=selected3,
-        out[4]=selected4,
-        out[5]=selected5,
-        out[6]=selected6,
-        out[7]=selected7,
-        out[8]=selected8,
-        out[9]=selected9,
-        out[10]=selected10,
-        out[11]=selected11,
-        out[12]=selected12,
-        out[13]=selected13,
-        out[14]=selected14,
-        out[15]=selected15
-    );
-    DFF(in=selected0, out=feedback0, out=out[0]);
-    DFF(in=selected1, out=feedback1, out=out[1]);
-    DFF(in=selected2, out=feedback2, out=out[2]);
-    DFF(in=selected3, out=feedback3, out=out[3]);
-    DFF(in=selected4, out=feedback4, out=out[4]);
-    DFF(in=selected5, out=feedback5, out=out[5]);
-    DFF(in=selected6, out=feedback6, out=out[6]);
-    DFF(in=selected7, out=feedback7, out=out[7]);
-    DFF(in=selected8, out=feedback8, out=out[8]);
-    DFF(in=selected9, out=feedback9, out=out[9]);
-    DFF(in=selected10, out=feedback10, out=out[10]);
-    DFF(in=selected11, out=feedback11, out=out[11]);
-    DFF(in=selected12, out=feedback12, out=out[12]);
-    DFF(in=selected13, out=feedback13, out=out[13]);
-    DFF(in=selected14, out=feedback14, out=out[14]);
-    DFF(in=selected15, out=feedback15, out=out[15]);
+    Bit(in=in[0], load=load, out=out[0]);
+    Bit(in=in[1], load=load, out=out[1]);
+    Bit(in=in[2], load=load, out=out[2]);
+    Bit(in=in[3], load=load, out=out[3]);
+    Bit(in=in[4], load=load, out=out[4]);
+    Bit(in=in[5], load=load, out=out[5]);
+    Bit(in=in[6], load=load, out=out[6]);
+    Bit(in=in[7], load=load, out=out[7]);
+    Bit(in=in[8], load=load, out=out[8]);
+    Bit(in=in[9], load=load, out=out[9]);
+    Bit(in=in[10], load=load, out=out[10]);
+    Bit(in=in[11], load=load, out=out[11]);
+    Bit(in=in[12], load=load, out=out[12]);
+    Bit(in=in[13], load=load, out=out[13]);
+    Bit(in=in[14], load=load, out=out[14]);
+    Bit(in=in[15], load=load, out=out[15]);
 }
