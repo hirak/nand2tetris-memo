@@ -27,10 +27,8 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    And(a=address[1], b=address[1], out=addr1);
-    And(a=address[13], b=address[13], out=addr13);
     DMux(in=load, sel=address[14], a=ramload, b=ioload); // 1 {
-    DMux(in=ioload, sel=address[13], a=scrload, b=null); // 2 {
+    DMux(in=ioload, sel=address[13], a=scrload, b=kbload); // 2 {
 
     RAM16K(in=in, load=ramload, address=address[0..13], out=ramout);
     Screen(in=in, load=scrload, address=address[0..12], out=scrout);
