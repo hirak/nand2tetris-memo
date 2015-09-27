@@ -39,5 +39,91 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // instruction
+    // A命令: 0vvv vvvv vvvv vvvv
+    // C命令: 111a cccc ccdd djjj
+    // a=instruction[12]
+    // c=instruction[6..11]
+    // d1=instruction[5]
+    // d2=instruction[4]
+    // d3=instruction[3]
+    // j1=instruction[2]
+    // j2=instruction[1]
+    // j3=instruction[0]
+
+    // aIn: Aレジスタへの入力選択
+    // A命令ならばinstructionをそのままAに渡して保存させる
+    Mux16(a=instruction, b=aluout, sel=instruction[15], out=aIn);
+
+    // aLoad: Aが保存するかどうか。
+    // - instructionがA命令の時
+    // - d1ビットが1の時
+    // この2パターン存在するのでOrでつなぐ
+    // instruction[15]==0 or instruction[5](=d1)==1
+    Not(in=instruction[15], out=aCmd);
+    Or(a=aCmd, b=instruction[5], out=aLoad);
+
+    // Aレジスタ。出力はa[16]
+    ARegister(in=aIn, load=aLoad, out=a, out[0..14]=addressM);
+
+    // am: ALUのyへの入力選択。aかmか。
+    // aビット(instruction[12])が1ならばMを。0ならばAを。
+    Mux16(a=a, b=inM, sel=instruction[12], out=am);
+
+    // Dレジスタ。出力はd
+    // ここに保存するのは
+    // d2(instruction[4])==1 and i=1
+    And(a=instruction[4], b=instruction[15], out=dLoad);
+    DRegister(in=aluout, load=dLoad, out=d);
+
+    // ALU
+    ALU(
+        x=d,
+        y=am,
+
+        zx=instruction[11], //c1
+        nx=instruction[10], //c2
+        zy=instruction[9],  //c3
+        ny=instruction[8],  //c4
+        f=instruction[7],   //c5
+        no=instruction[6],  //c6
+
+        out=aluout,
+        out=outM,
+        zr=zr,
+        ng=ng
+    );
+
+    // writeMは、d3(instruction[3])かつc命令の時(instruction[15])だけ
+    And(a=instruction[3], b=instruction[15], out=writeM);
+
+
+    // pcInc: カウンタをインクリメントする
+    // pcLoad: カウンタアドレスを上書きする。
+
+    // j1かつout < 0のとき1
+    And(a=ng, b=instruction[2], out=j1true);
+    // j2かつout = 0のとき1
+    And(a=zr, b=instruction[1], out=j2true);
+    // j3かつout > 0のとき1
+    // out>0は!(ng+zr)で判定
+    Or(a=ng, b=zr, out=notplus);
+    Not(in=notplus, out=plus);
+    And(a=plus, b=instruction[0], out=j3true);
+
+    // A命令の時は無条件でpcInc=1。
+    // 全て0ならば、条件が成立せずpcIncへ。
+    // どれか成立していたらpcLoadへ。
+    Or(a=j1true, b=j2true, out=j12true);
+    Or(a=j12true, b=j3true, out=j123true);
+    And(a=j123true, b=instruction[15], out=pcLoad);
+    Not(in=pcLoad, out=pcInc);
+
+    PC(
+        in=a,
+        inc=pcInc,
+        load=pcLoad,
+        reset=reset,
+        out[0..14]=pc
+    );
 }
